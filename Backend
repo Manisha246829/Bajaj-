@@ -1,0 +1,37 @@
+const express = require('express');
+const cors = require('cors');
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.use(cors());
+app.use(express.json());
+
+app.get('/', (req, res) => {
+  const operationCode = 'OP_CODE_123'; // Replace with your desired operation code
+  res.json({ operation_code: operationCode });
+});
+
+app.post('/', (req, res) => {
+  const { status, userId, collegeEmailId, collegeRollNumber, numbers, alphabets } = req.body;
+
+  // Basic validation (You can add more robust validation)
+  if (!status || !userId || !collegeEmailId || !collegeRollNumber || !numbers || !alphabets) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  // Process data as needed (e.g., store in database, perform calculations)
+
+  res.json({
+    status,
+    userId,
+    collegeEmailId,
+    collegeRollNumber,
+    numbers,
+    alphabets,
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});

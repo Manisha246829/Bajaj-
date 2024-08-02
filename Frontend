@@ -1,0 +1,89 @@
+import React, { useState } from 'react';
+
+const InputForm = () => {
+  const [inputValue, setInputValue] = useState('');
+  const [error, setError] = useState(null);
+  const [response, setResponse] = useState(null);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      const jsonData = JSON.parse(inputValue);
+      const response = await fetch('/api/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData),
+      });
+      const responseData = await response.json();
+      setResponse(responseData);
+      setError(null);
+    } catch (error) {
+      setError('Invalid JSON input');
+    }
+  };
+
+  const handleOptionChange = (option) => {
+    const newOptions = [...selectedOptions];
+    if (newOptions.includes(option)) {
+      newOptions.splice(newOptions.indexOf(option), 1);
+    } else {
+      newOptions.push(option);
+    }
+    setSelectedOptions(newOptions);
+  };
+
+  const filteredResponse = response && selectedOptions.length > 0
+    ? response.data.filter((item) => selectedOptions.includes(item.category))
+    : response ? response.data : [];
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <textarea
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="Enter JSON data"
+          rows="5"
+          cols="40"
+        />
+        <button type="submit">Submit</button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {response && (
+        <div>
+          <h2>Response:</h2>
+          <ul>
+            {filteredResponse.map((item, index) => (
+              <li key={index}>{item.name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div>
+        <h2>Select Options:</h2>
+        <label>
+          <input
+            type="checkbox"
+            value="option1"
+            checked={selectedOptions.includes('option1')}
+            onChange={() => handleOptionChange('option1')}
+          />
+          Option 1
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            value="option2"
+            checked={selectedOptions.includes('option2')}
+            onChange={() => handleOptionChange('option2')}
+          />
+          Option 2
+        </label>
+        {/* Add more options as needed */}
+      </div>
+    </div>
+  );
+};
+
+export default InputForm;
